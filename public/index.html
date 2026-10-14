@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard — Student Information System</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+</head>
+<body>
+
+  <!-- ============================================================
+       SIDEBAR / NAV
+  ============================================================ -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <span class="brand-icon">🎓</span>
+      <span class="brand-text">SIS Admin</span>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="#dashboard" class="nav-link active" data-section="dashboard">
+        📊 Dashboard
+      </a>
+      <a href="#students" class="nav-link" data-section="students">
+        👨‍🎓 Students
+      </a>
+      <a href="#add-student" class="nav-link" data-section="add-student">
+        ➕ Add Student
+      </a>
+      <a href="#fees" class="nav-link" data-section="fees">
+        💳 Fee Management
+      </a>
+      <a href="#attendance" class="nav-link" data-section="attendance">
+        📅 Attendance
+      </a>
+    </nav>
+    <div class="sidebar-footer">
+      <span id="sidebar-username" class="sidebar-user">Admin</span>
+      <button class="btn btn-sm btn-outline" id="logout-btn">Logout</button>
+    </div>
+  </aside>
+
+  <!-- ============================================================
+       MAIN CONTENT
+  ============================================================ -->
+  <main class="main-content">
+
+    <!-- Top bar -->
+    <header class="topbar">
+      <button class="hamburger" id="hamburger-btn" aria-label="Toggle sidebar">☰</button>
+      <h1 class="topbar-title" id="page-title">Dashboard</h1>
+      <div class="topbar-right">
+        <span id="topbar-username" class="topbar-user">Welcome, Admin</span>
+      </div>
+    </header>
+
+    <!-- Global Alert Banner -->
+    <div id="global-alert" class="alert hidden" role="alert"></div>
+
+    <!-- ===========================================================
+         SECTION: Dashboard
+    =========================================================== -->
+    <section id="section-dashboard" class="section active">
+      <h2 class="section-title">Overview</h2>
+      <div class="stats-grid">
+        <div class="stat-card stat-blue">
+          <div class="stat-icon">👨‍🎓</div>
+          <div class="stat-info">
+            <span class="stat-label">Total Students</span>
+            <span class="stat-value" id="stat-total">—</span>
+          </div>
+        </div>
+        <div class="stat-card stat-green">
+          <div class="stat-icon">✅</div>
+          <div class="stat-info">
+            <span class="stat-label">Active Students</span>
+            <span class="stat-value" id="stat-active">—</span>
+          </div>
+        </div>
+        <div class="stat-card stat-purple">
+          <div class="stat-icon">📚</div>
+          <div class="stat-info">
+            <span class="stat-label">Total Courses</span>
+            <span class="stat-value" id="stat-courses">—</span>
+          </div>
+        </div>
+        <div class="stat-card stat-orange">
+          <div class="stat-icon">🏛</div>
+          <div class="stat-info">
+            <span class="stat-label">Departments</span>
+            <span class="stat-value" id="stat-depts">—</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Fee Overview Dashboard Cards -->
+      <h3 class="section-subtitle">Fee Overview</h3>
+      <div class="stats-grid">
+        <div class="stat-card stat-indigo">
+          <div class="stat-icon">💰</div>
+          <div class="stat-info">
+            <span class="stat-label">Total Fees</span>
+            <span class="stat-value" id="dash-fee-total">₹0</span>
+          </div>
+        </div>
+        <div class="stat-card stat-teal">
+          <div class="stat-icon">💵</div>
+          <div class="stat-info">
+            <span class="stat-label">Fees Collected</span>
+            <span class="stat-value" id="dash-fee-collected">₹0</span>
+          </div>
+        </div>
+        <div class="stat-card stat-rose">
+          <div class="stat-icon">⏳</div>
+          <div class="stat-info">
+            <span class="stat-label">Pending Fees</span>
+            <span class="stat-value" id="dash-fee-pending">₹0</span>
+          </div>
+        </div>
+        <div class="stat-card stat-amber">
+          <div class="stat-icon">⚠️</div>
+          <div class="stat-info">
+            <span class="stat-label">Students with Unpaid Fees</span>
+            <span class="stat-value" id="dash-fee-unpaid-count">0</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="dashboard-quick">
+        <div class="card">
+          <h3 class="card-title">Quick Actions</h3>
+          <div class="quick-actions">
+            <button class="btn btn-primary" onclick="navigate('add-student')">➕ Add New Student</button>
+            <button class="btn btn-secondary" onclick="navigate('students')">👨‍🎓 View All Students</button>
+            <button class="btn btn-secondary" onclick="navigate('fees')">💳 Manage Fees</button>
+            <button class="btn btn-secondary" onclick="navigate('attendance')">📅 Mark Attendance</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===========================================================
+         SECTION: Students Table
+    =========================================================== -->
+    <section id="section-students" class="section">
+      <div class="section-header">
+        <h2 class="section-title">Student Records</h2>
+        <button class="btn btn-primary" onclick="navigate('add-student')">➕ Add Student</button>
+      </div>
+
+      <!-- Search & Filter Bar -->
+      <div class="card filter-card">
+        <div class="filter-row">
+          <div class="form-group search-group">
+            <input
+              id="search-input"
+              type="search"
+              class="form-control"
+              placeholder="🔍  Search by name, roll no, email or phone…"
+            />
+          </div>
+          <div class="form-group">
+            <select id="filter-dept" class="form-control">
+              <option value="">All Departments</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <select id="filter-status" class="form-control">
+              <option value="">All Status</option>
+              <option value="active">Active</option>
+              <option value="inactive">Inactive</option>
+              <option value="graduated">Graduated</option>
+            </select>
+          </div>
+          <button class="btn btn-secondary" id="clear-filter-btn">Clear</button>
+        </div>
+      </div>
+
+      <!-- Table -->
+      <div class="card table-card">
+        <div class="table-wrapper">
+          <table id="students-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Name</th>
+                <th>Roll No.</th>
+                <th>Email</th>
+                <th>Phone</th>
+                <th>Course</th>
+                <th>Department</th>
+                <th>Admission</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="students-tbody">
+              <tr>
+                <td colspan="10" class="table-loading">Loading students…</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Pagination -->
+        <div class="pagination-bar" id="pagination-bar"></div>
+      </div>
+    </section>
+
+    <!-- ===========================================================
+         SECTION: Add / Edit Student Form
+    =========================================================== -->
+    <section id="section-add-student" class="section">
+      <div class="section-header">
+        <h2 class="section-title" id="form-section-title">Add New Student</h2>
+      </div>
+
+      <div class="card form-card">
+        <div id="form-alert" class="alert hidden" role="alert"></div>
+
+        <form id="student-form" novalidate>
+          <input type="hidden" id="student-id" />
+
+          <div class="form-grid">
+            <!-- Name -->
+            <div class="form-group">
+              <label for="s-name">Full Name <span class="required">*</span></label>
+              <input id="s-name" type="text" class="form-control" placeholder="e.g. Riya Sharma" required />
+              <span class="field-error" id="e-name"></span>
+            </div>
+
+            <!-- Roll Number -->
+            <div class="form-group">
+              <label for="s-roll">Roll Number <span class="required">*</span></label>
+              <input id="s-roll" type="text" class="form-control" placeholder="e.g. CS2024001" required />
+              <span class="field-error" id="e-roll"></span>
+            </div>
+
+            <!-- Email -->
+            <div class="form-group">
+              <label for="s-email">Email Address <span class="required">*</span></label>
+              <input id="s-email" type="email" class="form-control" placeholder="student@example.com" required />
+              <span class="field-error" id="e-email"></span>
+            </div>
+
+            <!-- Phone -->
+            <div class="form-group">
+              <label for="s-phone">Phone Number <span class="required">*</span></label>
+              <input id="s-phone" type="tel" class="form-control" placeholder="+91 98765 43210" required />
+              <span class="field-error" id="e-phone"></span>
+            </div>
+
+            <!-- Department -->
+            <div class="form-group">
+              <label for="s-dept">Department <span class="required">*</span></label>
+              <select id="s-dept" class="form-control" required>
+                <option value="">— Select Department —</option>
+              </select>
+              <span class="field-error" id="e-dept"></span>
+            </div>
+
+            <!-- Course -->
+            <div class="form-group">
+              <label for="s-course">Course <span class="required">*</span></label>
+              <select id="s-course" class="form-control" required>
+                <option value="">— Select Course —</option>
+              </select>
+              <span class="field-error" id="e-course"></span>
+            </div>
+
+            <!-- Admission Date -->
+            <div class="form-group">
+              <label for="s-admission">Admission Date <span class="required">*</span></label>
+              <input id="s-admission" type="date" class="form-control" required />
+              <span class="field-error" id="e-admission"></span>
+            </div>
+
+            <!-- Status -->
+            <div class="form-group">
+              <label for="s-status">Status</label>
+              <select id="s-status" class="form-control">
+                <option value="active">Active</option>
+                <option value="inactive">Inactive</option>
+                <option value="graduated">Graduated</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Form Buttons -->
+          <div class="form-actions">
+            <button type="submit" class="btn btn-primary" id="submit-btn">
+              <span class="btn-text">Save Student</span>
+              <span class="btn-spinner hidden">⏳ Saving…</span>
+            </button>
+            <button type="button" class="btn btn-secondary" onclick="resetStudentForm()">
+              Clear Form
+            </button>
+            <button type="button" class="btn btn-outline" onclick="navigate('students')">
+              Cancel
+            </button>
+          </div>
+        </form>
+      </div>
+    </section>
+
+    <!-- ===========================================================
+         SECTION: Fee Management
+    =========================================================== -->
+    <section id="section-fees" class="section">
+      <div class="section-header">
+        <h2 class="section-title">Fee Management</h2>
+      </div>
+
+      <!-- Fee Statistics Cards -->
+      <div class="stats-grid">
+        <div class="stat-card stat-indigo">
+          <div class="stat-icon">💰</div>
+          <div class="stat-info">
+            <span class="stat-label">Total Fees</span>
+            <span class="stat-value" id="fee-stat-total">₹0</span>
+          </div>
+        </div>
+        <div class="stat-card stat-teal">
+          <div class="stat-icon">💵</div>
+          <div class="stat-info">
+            <span class="stat-label">Fees Collected</span>
+            <span class="stat-value" id="fee-stat-collected">₹0</span>
+          </div>
+        </div>
+        <div class="stat-card stat-rose">
+          <div class="stat-icon">⏳</div>
+          <div class="stat-info">
+            <span class="stat-label">Pending Fees</span>
+            <span class="stat-value" id="fee-stat-pending">₹0</span>
+          </div>
+        </div>
+        <div class="stat-card stat-amber">
+          <div class="stat-icon">⚠️</div>
+          <div class="stat-info">
+            <span class="stat-label">Students with Unpaid Fees</span>
+            <span class="stat-value" id="fee-stat-unpaid">0</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Search & Filters -->
+      <div class="card filter-card">
+        <div class="filter-row">
+          <div class="form-group search-group">
+            <input
+              id="fee-search-input"
+              type="search"
+              class="form-control"
+              placeholder="🔍  Search by student name, roll no, or email…"
+            />
+          </div>
+          <div class="form-group">
+            <select id="fee-filter-status" class="form-control">
+              <option value="">All Fee Statuses</option>
+              <option value="Paid">Paid</option>
+              <option value="Partial">Partial</option>
+              <option value="Unpaid">Unpaid</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <select id="fee-filter-dept" class="form-control">
+              <option value="">All Departments</option>
+            </select>
+          </div>
+          <button class="btn btn-secondary" id="fee-clear-filter-btn">Clear</button>
+        </div>
+      </div>
+
+      <!-- Fees Table -->
+      <div class="card table-card">
+        <div class="table-wrapper">
+          <table id="fees-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Student</th>
+                <th>Roll No.</th>
+                <th>Course</th>
+                <th>Total Fee</th>
+                <th>Paid Amount</th>
+                <th>Remaining Balance</th>
+                <th>Status</th>
+                <th>Last Payment</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="fees-tbody">
+              <tr>
+                <td colspan="10" class="table-loading">Loading fee records…</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="pagination-bar" id="fee-pagination-bar"></div>
+      </div>
+    </section>
+
+    <!-- ===========================================================
+         SECTION: Attendance Management
+    =========================================================== -->
+    <section id="section-attendance" class="section">
+      <div class="section-header">
+        <h2 class="section-title">Attendance Management</h2>
+        <div class="tab-btn-group">
+          <button class="btn btn-sm btn-primary" id="tab-btn-mark" onclick="switchAttendanceTab('mark')">✏️ Mark Attendance</button>
+          <button class="btn btn-sm btn-secondary" id="tab-btn-summary" onclick="switchAttendanceTab('summary')">📊 Summary & Reports</button>
+          <button class="btn btn-sm btn-secondary" id="tab-btn-report" onclick="switchAttendanceTab('report')">📅 Date-wise Report</button>
+        </div>
+      </div>
+
+      <!-- SUB-TAB 1: Mark Attendance -->
+      <div id="att-tab-mark" class="att-subtab">
+        <div class="card filter-card">
+          <div class="filter-row">
+            <div class="form-group">
+              <label for="att-select-course">Course <span class="required">*</span></label>
+              <select id="att-select-course" class="form-control">
+                <option value="">— Select Course —</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="att-class-name">Class / Batch</label>
+              <input id="att-class-name" type="text" class="form-control" value="Regular" placeholder="e.g. Regular, Section A" />
+            </div>
+            <div class="form-group">
+              <label for="att-date">Date <span class="required">*</span></label>
+              <input id="att-date" type="date" class="form-control" />
+            </div>
+            <div class="form-group" style="align-self: flex-end;">
+              <button class="btn btn-primary" id="att-load-students-btn">Fetch Students</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="card table-card">
+          <div class="card-header-bar" style="padding: 1rem 1.25rem; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--gray-200);">
+            <div id="att-status-indicator" style="font-size: 0.9rem; font-weight: 500; color: var(--gray-600);">
+              Select course & date to mark attendance.
+            </div>
+            <div class="quick-batch-buttons hidden" id="att-batch-actions">
+              <button class="btn btn-xs btn-outline" onclick="setAllAttendance('Present')">All Present</button>
+              <button class="btn btn-xs btn-outline" onclick="setAllAttendance('Absent')">All Absent</button>
+            </div>
+          </div>
+          <div class="table-wrapper">
+            <table id="att-marking-table">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Roll No.</th>
+                  <th>Student Name</th>
+                  <th>Course</th>
+                  <th>Status</th>
+                  <th>Mark / Change</th>
+                </tr>
+              </thead>
+              <tbody id="att-marking-tbody">
+                <tr>
+                  <td colspan="6" class="table-loading">Select a course and date above to load students.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="card-footer-bar hidden" id="att-save-bar" style="padding: 1rem 1.25rem; border-top: 1px solid var(--gray-200); display: flex; justify-content: flex-end;">
+            <button class="btn btn-primary" id="att-save-btn">
+              <span class="btn-text">💾 Save Attendance</span>
+              <span class="btn-spinner hidden">⏳ Saving…</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- SUB-TAB 2: Summary & Reports (<75% highlight) -->
+      <div id="att-tab-summary" class="att-subtab hidden">
+        <div class="card filter-card">
+          <div class="filter-row">
+            <div class="form-group search-group">
+              <input id="att-summary-search" type="search" class="form-control" placeholder="🔍 Search student name or roll number…" />
+            </div>
+            <div class="form-group">
+              <select id="att-summary-course" class="form-control">
+                <option value="">All Courses</option>
+              </select>
+            </div>
+            <button class="btn btn-secondary" id="att-summary-clear-btn">Clear</button>
+          </div>
+        </div>
+
+        <div class="card table-card">
+          <div style="padding: 0.75rem 1.25rem; background: var(--gray-50); font-size: 0.85rem; color: var(--gray-600); border-bottom: 1px solid var(--gray-200);">
+            💡 <strong>Note:</strong> Students with attendance <strong>below 75%</strong> are automatically highlighted with an alert badge.
+          </div>
+          <div class="table-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Roll No.</th>
+                  <th>Student Name</th>
+                  <th>Course</th>
+                  <th>Total Classes</th>
+                  <th>Present Days</th>
+                  <th>Absent Days</th>
+                  <th>Attendance %</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="att-summary-tbody">
+                <tr>
+                  <td colspan="9" class="table-loading">Loading summary…</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- SUB-TAB 3: Date-wise Report -->
+      <div id="att-tab-report" class="att-subtab hidden">
+        <div class="card filter-card">
+          <div class="filter-row">
+            <div class="form-group">
+              <label for="att-report-date">Select Date</label>
+              <input id="att-report-date" type="date" class="form-control" />
+            </div>
+            <div class="form-group">
+              <label for="att-report-course">Filter Course</label>
+              <select id="att-report-course" class="form-control">
+                <option value="">All Courses</option>
+              </select>
+            </div>
+            <div class="form-group" style="align-self: flex-end;">
+              <button class="btn btn-primary" id="att-report-btn">Generate Report</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="stats-grid hidden" id="att-report-stats-grid">
+          <div class="stat-card stat-blue">
+            <div class="stat-icon">📋</div>
+            <div class="stat-info">
+              <span class="stat-label">Total Marked</span>
+              <span class="stat-value" id="rep-total">0</span>
+            </div>
+          </div>
+          <div class="stat-card stat-green">
+            <div class="stat-icon">✅</div>
+            <div class="stat-info">
+              <span class="stat-label">Present</span>
+              <span class="stat-value" id="rep-present">0</span>
+            </div>
+          </div>
+          <div class="stat-card stat-rose">
+            <div class="stat-icon">❌</div>
+            <div class="stat-info">
+              <span class="stat-label">Absent</span>
+              <span class="stat-value" id="rep-absent">0</span>
+            </div>
+          </div>
+          <div class="stat-card stat-purple">
+            <div class="stat-icon">📈</div>
+            <div class="stat-info">
+              <span class="stat-label">Present %</span>
+              <span class="stat-value" id="rep-percentage">0%</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="card table-card">
+          <div class="table-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Roll No.</th>
+                  <th>Student Name</th>
+                  <th>Course</th>
+                  <th>Class / Batch</th>
+                  <th>Date</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="att-report-tbody">
+                <tr>
+                  <td colspan="7" class="table-loading">Select a date above and click Generate Report.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ===========================================================
+       FEE MODALS
+  ============================================================ -->
+  <!-- Set Total Fee Modal -->
+  <div id="fee-total-modal" class="modal-overlay hidden" role="dialog" aria-modal="true">
+    <div class="modal">
+      <h3>💰 Set Total Fee</h3>
+      <p id="fee-total-modal-desc">Set or update the total fee for this student.</p>
+      <form id="fee-total-form" novalidate>
+        <input type="hidden" id="fee-total-student-id" />
+        <div class="form-group">
+          <label for="fee-total-amount">Total Fee (₹) <span class="required">*</span></label>
+          <input id="fee-total-amount" type="number" step="0.01" min="0" class="form-control" placeholder="e.g. 50000" required />
+          <span class="field-error" id="e-fee-total"></span>
+        </div>
+        <div class="modal-actions" style="margin-top: 1.25rem;">
+          <button type="submit" class="btn btn-primary" id="fee-total-save-btn">Save Total Fee</button>
+          <button type="button" class="btn btn-secondary" onclick="closeFeeTotalModal()">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Record Payment Modal -->
+  <div id="fee-payment-modal" class="modal-overlay hidden" role="dialog" aria-modal="true">
+    <div class="modal modal-md">
+      <h3>💵 Record Fee Payment</h3>
+      <p id="fee-payment-modal-desc" style="margin-bottom: 1rem; color: var(--gray-600);">Record payment for student.</p>
+      <form id="fee-payment-form" novalidate>
+        <input type="hidden" id="pay-student-id" />
+        <div class="form-group">
+          <label for="pay-amount">Payment Amount (₹) <span class="required">*</span></label>
+          <input id="pay-amount" type="number" step="0.01" min="1" class="form-control" placeholder="e.g. 15000" required />
+          <span class="field-error" id="e-pay-amount"></span>
+        </div>
+        <div class="form-group">
+          <label for="pay-date">Payment Date <span class="required">*</span></label>
+          <input id="pay-date" type="date" class="form-control" required />
+          <span class="field-error" id="e-pay-date"></span>
+        </div>
+        <div class="form-group">
+          <label for="pay-method">Payment Method <span class="required">*</span></label>
+          <select id="pay-method" class="form-control" required>
+            <option value="Cash">Cash</option>
+            <option value="UPI">UPI</option>
+            <option value="Card">Card</option>
+            <option value="Net Banking">Net Banking</option>
+            <option value="Cheque">Cheque</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="pay-remarks">Remarks / Receipt Note</label>
+          <input id="pay-remarks" type="text" class="form-control" placeholder="e.g. Semester 1 installment" />
+        </div>
+        <div class="modal-actions" style="margin-top: 1.25rem;">
+          <button type="submit" class="btn btn-primary" id="pay-submit-btn">Record Payment</button>
+          <button type="button" class="btn btn-secondary" onclick="closePaymentModal()">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Payment History Modal -->
+  <div id="fee-history-modal" class="modal-overlay hidden" role="dialog" aria-modal="true">
+    <div class="modal modal-lg">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+        <h3 id="fee-history-modal-title">Payment History</h3>
+        <button class="btn btn-xs btn-outline" onclick="closeFeeHistoryModal()">✕ Close</button>
+      </div>
+      <div id="fee-history-summary" class="history-summary-box" style="margin-bottom: 1rem; padding: 0.75rem; background: var(--gray-50); border-radius: 8px; font-size: 0.85rem;"></div>
+      <div class="table-wrapper" style="max-height: 320px; overflow-y: auto;">
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Date</th>
+              <th>Amount</th>
+              <th>Method</th>
+              <th>Remarks</th>
+            </tr>
+          </thead>
+          <tbody id="fee-history-tbody">
+            <tr>
+              <td colspan="5" class="table-loading">Loading history…</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="modal-actions" style="margin-top: 1rem; justify-content: flex-end;">
+        <button type="button" class="btn btn-secondary" onclick="closeFeeHistoryModal()">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Attendance History Modal -->
+  <div id="att-history-modal" class="modal-overlay hidden" role="dialog" aria-modal="true">
+    <div class="modal modal-lg">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+        <h3 id="att-history-modal-title">Attendance History</h3>
+        <button class="btn btn-xs btn-outline" onclick="closeAttHistoryModal()">✕ Close</button>
+      </div>
+      <div id="att-history-summary" class="history-summary-box" style="margin-bottom: 1rem; padding: 0.75rem; background: var(--gray-50); border-radius: 8px; font-size: 0.85rem;"></div>
+      <div class="table-wrapper" style="max-height: 320px; overflow-y: auto;">
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Date</th>
+              <th>Class</th>
+              <th>Course</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="att-history-tbody">
+            <tr>
+              <td colspan="5" class="table-loading">Loading history…</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="modal-actions" style="margin-top: 1rem; justify-content: flex-end;">
+        <button type="button" class="btn btn-secondary" onclick="closeAttHistoryModal()">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===========================================================
+       DELETE CONFIRMATION MODAL
+  =========================================================== -->
+  <div id="delete-modal" class="modal-overlay hidden" role="dialog" aria-modal="true">
+    <div class="modal">
+      <h3>⚠️ Confirm Deletion</h3>
+      <p id="delete-modal-msg">Are you sure you want to delete this student? This action cannot be undone.</p>
+      <div class="modal-actions">
+        <button class="btn btn-danger" id="confirm-delete-btn">Delete</button>
+        <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/app.js"></script>
+</body>
+</html>

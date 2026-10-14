@@ -1,0 +1,22 @@
+{
+  "name": "student-information-system",
+  "version": "1.0.0",
+  "description": "A beginner-friendly Student Information System built with Node.js, Express, and MySQL",
+  "main": "server/app.js",
+  "scripts": {
+    "start": "node server/app.js",
+    "dev": "nodemon server/app.js"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "dotenv": "^16.4.5",
+    "express": "^4.18.2",
+    "express-rate-limit": "^7.3.1",
+    "express-session": "^1.18.0",
+    "express-validator": "^7.0.1",
+    "mysql2": "^3.9.7"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.0"
+  }
+}

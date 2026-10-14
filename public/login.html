@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Login — Student Information System</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+</head>
+<body class="auth-body">
+
+  <div class="auth-container">
+    <!-- Logo / Branding -->
+    <div class="auth-brand">
+      <div class="brand-icon">🎓</div>
+      <h1>Student Information System</h1>
+      <p>Sign in to manage student records</p>
+    </div>
+
+    <!-- Login Card -->
+    <div class="card auth-card">
+      <h2 class="card-title">Administrator Login</h2>
+
+      <!-- Error / Success Banner -->
+      <div id="auth-alert" class="alert hidden" role="alert"></div>
+
+      <form id="login-form" novalidate>
+        <div class="form-group">
+          <label for="username">Username</label>
+          <input
+            id="username"
+            name="username"
+            type="text"
+            class="form-control"
+            placeholder="Enter your username"
+            autocomplete="username"
+            required
+          />
+          <span class="field-error" id="username-error"></span>
+        </div>
+
+        <div class="form-group">
+          <label for="password">Password</label>
+          <div class="input-wrapper">
+            <input
+              id="password"
+              name="password"
+              type="password"
+              class="form-control"
+              placeholder="Enter your password"
+              autocomplete="current-password"
+              required
+            />
+            <button type="button" class="toggle-password" aria-label="Toggle password visibility" onclick="togglePassword()">
+              👁
+            </button>
+          </div>
+          <span class="field-error" id="password-error"></span>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-full" id="login-btn">
+          <span class="btn-text">Sign In</span>
+          <span class="btn-spinner hidden">⏳ Signing in…</span>
+        </button>
+      </form>
+
+      <p class="auth-hint">
+        Default credentials: <strong>admin</strong> / <strong>Admin@123</strong><br/>
+        <small>Change your password after first login.</small>
+      </p>
+    </div>
+  </div>
+
+  <script src="js/login.js"></script>
+</body>
+</html>
