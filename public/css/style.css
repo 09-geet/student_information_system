@@ -555,3 +555,299 @@ tbody tr:last-child td { border-bottom: none; }
   .section { padding: 1rem; }
   .form-card { padding: 1.25rem; }
 }
+
+/* ----------------------------------------------------------------
+   17. Student Portal Specific Styles
+---------------------------------------------------------------- */
+.auth-header-tabs {
+  display: flex;
+  background: var(--gray-100);
+  border-radius: 8px;
+  padding: 4px;
+  margin-bottom: 0.75rem;
+}
+
+.auth-tab {
+  flex: 1;
+  text-align: center;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--gray-600);
+  border-radius: 6px;
+  transition: all var(--transition);
+  text-decoration: none;
+}
+
+.auth-tab:hover {
+  color: var(--primary);
+  text-decoration: none;
+}
+
+.auth-tab.active {
+  background: #fff;
+  color: var(--primary);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.student-sidebar-profile {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem 1.25rem;
+  background: rgba(255, 255, 255, 0.05);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.student-avatar {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: var(--primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.3rem;
+  flex-shrink: 0;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.student-sidebar-info {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.student-sidebar-name {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.student-sidebar-roll {
+  font-size: 0.775rem;
+  color: var(--gray-400);
+  font-family: monospace;
+}
+
+.student-hero-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  background: linear-gradient(135deg, #4338ca 0%, #6366f1 100%);
+  color: #fff;
+  border: none;
+  box-shadow: var(--shadow-md);
+}
+
+.student-hero-title {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: #fff;
+  margin-bottom: 0.35rem;
+}
+
+.student-hero-subtitle {
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.dashboard-split-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+  margin-top: 1rem;
+}
+
+@media (max-width: 900px) {
+  .dashboard-split-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.card-header-flex {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--gray-200);
+  padding-bottom: 0.75rem;
+}
+
+.attendance-meter-box {
+  background: var(--gray-50);
+  border-radius: 8px;
+  padding: 1rem;
+  border: 1px solid var(--gray-200);
+}
+
+.meter-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.85rem;
+  color: var(--gray-700);
+  margin-bottom: 0.5rem;
+}
+
+.meter-track {
+  height: 12px;
+  background: var(--gray-200);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.meter-bar {
+  height: 100%;
+  border-radius: 6px;
+  transition: width 0.5s ease;
+}
+
+.meter-note {
+  font-size: 0.8rem;
+  margin-top: 0.5rem;
+  color: var(--gray-600);
+}
+
+.mini-stats-row {
+  display: flex;
+  justify-content: space-around;
+  text-align: center;
+  padding-top: 0.5rem;
+}
+
+.mini-stat-label {
+  display: block;
+  font-size: 0.75rem;
+  color: var(--gray-500);
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+.mini-stat-value {
+  display: block;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--gray-900);
+}
+
+.text-success { color: var(--success) !important; }
+.text-danger  { color: var(--danger) !important; }
+.text-muted   { color: var(--gray-500) !important; }
+
+.notices-snippet-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.notice-snippet-item {
+  padding: 0.75rem;
+  background: var(--gray-50);
+  border-left: 3px solid var(--primary);
+  border-radius: 4px;
+}
+
+.notice-snippet-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.25rem;
+}
+
+.notice-title {
+  font-size: 0.875rem;
+  color: var(--gray-900);
+}
+
+.notice-date {
+  font-size: 0.75rem;
+  color: var(--gray-500);
+}
+
+.notice-body-preview {
+  font-size: 0.825rem;
+  color: var(--gray-600);
+  line-height: 1.4;
+  margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.profile-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+}
+
+@media (max-width: 800px) {
+  .profile-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.profile-field-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.profile-field {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--gray-100);
+}
+
+.profile-field .field-label {
+  font-size: 0.85rem;
+  color: var(--gray-500);
+  font-weight: 500;
+}
+
+.profile-field .field-value {
+  font-size: 0.9rem;
+  color: var(--gray-900);
+}
+
+.empty-state-card {
+  padding: 3rem 1.5rem;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.empty-state-icon {
+  font-size: 3.5rem;
+  margin-bottom: 1rem;
+}
+
+.empty-state-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--gray-800);
+  margin-bottom: 0.5rem;
+}
+
+.empty-state-text {
+  font-size: 0.925rem;
+  color: var(--gray-600);
+  max-width: 500px;
+  line-height: 1.5;
+  margin-bottom: 1.25rem;
+}
+
+.empty-state-meta {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+

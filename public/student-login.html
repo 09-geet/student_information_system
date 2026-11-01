@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Student Portal Login — Student Information System</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+</head>
+<body class="auth-body">
+
+  <div class="auth-container">
+    <!-- Branding -->
+    <div class="auth-brand">
+      <div class="brand-icon">🎓</div>
+      <h1>Student Information System</h1>
+      <p>Student Self-Service Portal</p>
+    </div>
+
+    <!-- Login Card -->
+    <div class="card auth-card">
+      <div class="auth-header-tabs">
+        <a href="/login.html" class="auth-tab">Admin Login</a>
+        <a href="/student-login.html" class="auth-tab active">Student Portal</a>
+      </div>
+
+      <h2 class="card-title" style="margin-top: 1rem;">Student Sign In</h2>
+      <p style="font-size: 0.85rem; color: var(--gray-500); margin-bottom: 1.25rem;">
+        Enter your registered email address or student roll number to access your academic records.
+      </p>
+
+      <!-- Alert Banner -->
+      <div id="student-auth-alert" class="alert hidden" role="alert"></div>
+
+      <form id="student-login-form" novalidate>
+        <!-- Email or Roll Number -->
+        <div class="form-group">
+          <label for="identifier">Email Address or Roll Number <span class="required">*</span></label>
+          <input
+            id="identifier"
+            name="identifier"
+            type="text"
+            class="form-control"
+            placeholder="e.g. CS2024102 or priya@test.edu"
+            autocomplete="username"
+            required
+          />
+          <span class="field-error" id="identifier-error"></span>
+        </div>
+
+        <!-- Password -->
+        <div class="form-group">
+          <label for="password">Password <span class="required">*</span></label>
+          <div class="input-wrapper">
+            <input
+              id="password"
+              name="password"
+              type="password"
+              class="form-control"
+              placeholder="Enter your password"
+              autocomplete="current-password"
+              required
+            />
+            <button
+              type="button"
+              class="toggle-password"
+              id="toggle-pwd-btn"
+              aria-label="Toggle password visibility"
+              onclick="toggleStudentPassword()"
+            >
+              👁
+            </button>
+          </div>
+          <span class="field-error" id="password-error"></span>
+        </div>
+
+        <!-- Submit Button -->
+        <button type="submit" class="btn btn-primary btn-full" id="student-login-btn">
+          <span class="btn-text">Sign In to Student Portal</span>
+          <span class="btn-spinner hidden">⏳ Signing in…</span>
+        </button>
+      </form>
+
+      <div class="auth-footer-links" style="margin-top: 1.5rem; text-align: center; border-top: 1px solid var(--gray-200); padding-top: 1rem;">
+        <p style="font-size: 0.825rem; color: var(--gray-600); margin-bottom: 0.5rem;">
+          Default password for new accounts is <strong>Student@123</strong>.
+        </p>
+        <p style="font-size: 0.825rem; color: var(--gray-500);">
+          Are you an administrator? <a href="/login.html" style="font-weight: 600;">Admin Sign In &rarr;</a>
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/csrf.js"></script>
+<script src="js/student-login.js"></script>
+</body>
+</html>

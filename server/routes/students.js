@@ -5,6 +5,7 @@
 'use strict';
 
 const express = require('express');
+const bcrypt = require('bcryptjs');
 const { body, param, query, validationResult } = require('express-validator');
 const pool = require('../db');
 
@@ -292,6 +293,19 @@ router.post('/', studentValidators, async (req, res) => {
       console.warn('Could not auto-create fee_record:', feeErr.message);
     }
 
+    // Initialize student portal account with default credentials (Student@123)
+    try {
+      const defaultHash = '$2a$12$bRtm7SG/RvlpxYJkZAHV4.CH0hmqUBPND7frhk2LnYj.1HP39sR6y';
+      await pool.execute(
+        `INSERT INTO student_accounts (student_id, password_hash, is_active, must_change_password)
+         VALUES (?, ?, 1, 1)
+         ON DUPLICATE KEY UPDATE student_id = student_id`,
+        [result.insertId, defaultHash]
+      );
+    } catch (accErr) {
+      console.warn('Could not auto-create student_account:', accErr.message);
+    }
+
     res.status(201).json({
       success: true,
       message: 'Student added successfully.',
@@ -379,6 +393,180 @@ router.delete(
     } catch (err) {
       console.error('DELETE /students/:id error:', err);
       res.status(500).json({ success: false, message: 'Failed to delete student.' });
+    }
+  }
+);
+
+// ===============================================================
+// STUDENT ACCOUNT MANAGEMENT (ADMIN-CONTROLLED)
+// ===============================================================
+
+// ---------------------------------------------------------------
+// GET /api/students/:id/account — Get student account status
+// ---------------------------------------------------------------
+router.get(
+  '/:id/account',
+  [param('id').isInt({ min: 1 }).withMessage('Invalid student ID.')],
+  async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) return sendValidationError(res, errors);
+
+    const studentId = req.params.id;
+
+    try {
+      const [students] = await pool.execute(
+        'SELECT id, name, roll_number, email FROM students WHERE id = ?',
+        [studentId]
+      );
+
+      if (students.length === 0) {
+        return res.status(404).json({ success: false, message: 'Student not found.' });
+      }
+
+      const [accounts] = await pool.execute(
+        `SELECT id, is_active, must_change_password, last_login, created_at, updated_at
+         FROM student_accounts
+         WHERE student_id = ?`,
+        [studentId]
+      );
+
+      const hasAccount = accounts.length > 0;
+      res.json({
+        success: true,
+        student: students[0],
+        hasAccount,
+        account: hasAccount ? accounts[0] : null,
+      });
+    } catch (err) {
+      console.error('GET /:id/account error:', err);
+      res.status(500).json({ success: false, message: 'Failed to fetch student account.' });
+    }
+  }
+);
+
+// ---------------------------------------------------------------
+// POST /api/students/:id/account/create — Create student portal account
+// ---------------------------------------------------------------
+router.post(
+  '/:id/account/create',
+  [
+    param('id').isInt({ min: 1 }).withMessage('Invalid student ID.'),
+    body('password').optional().isLength({ min: 6 }).withMessage('Password must be at least 6 characters.'),
+  ],
+  async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) return sendValidationError(res, errors);
+
+    const studentId = req.params.id;
+    const rawPassword = req.body.password || 'Student@123';
+
+    try {
+      const [students] = await pool.execute(
+        'SELECT id, name, roll_number, email FROM students WHERE id = ?',
+        [studentId]
+      );
+      if (students.length === 0) {
+        return res.status(404).json({ success: false, message: 'Student not found.' });
+      }
+
+      const [existing] = await pool.execute(
+        'SELECT id FROM student_accounts WHERE student_id = ?',
+        [studentId]
+      );
+      if (existing.length > 0) {
+        return res.status(409).json({ success: false, message: 'An account already exists for this student.' });
+      }
+
+      const passwordHash = await bcrypt.hash(rawPassword, 12);
+      await pool.execute(
+        `INSERT INTO student_accounts (student_id, password_hash, is_active, must_change_password)
+         VALUES (?, ?, 1, 1)`,
+        [studentId, passwordHash]
+      );
+
+      res.status(201).json({
+        success: true,
+        message: 'Student account created successfully. Temporary password is set.',
+      });
+    } catch (err) {
+      console.error('POST /:id/account/create error:', err);
+      res.status(500).json({ success: false, message: 'Failed to create student account.' });
+    }
+  }
+);
+
+// ---------------------------------------------------------------
+// POST /api/students/:id/account/toggle-status — Activate/deactivate account
+// ---------------------------------------------------------------
+router.post(
+  '/:id/account/toggle-status',
+  [
+    param('id').isInt({ min: 1 }).withMessage('Invalid student ID.'),
+    body('is_active').isBoolean().withMessage('is_active must be a boolean.'),
+  ],
+  async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) return sendValidationError(res, errors);
+
+    const studentId = req.params.id;
+    const isActive = req.body.is_active ? 1 : 0;
+
+    try {
+      const [result] = await pool.execute(
+        'UPDATE student_accounts SET is_active = ?, updated_at = NOW() WHERE student_id = ?',
+        [isActive, studentId]
+      );
+
+      if (result.affectedRows === 0) {
+        return res.status(404).json({ success: false, message: 'Student account not found.' });
+      }
+
+      res.json({
+        success: true,
+        message: `Student account ${isActive ? 'activated' : 'deactivated'} successfully.`,
+        is_active: Boolean(isActive),
+      });
+    } catch (err) {
+      console.error('POST /:id/account/toggle-status error:', err);
+      res.status(500).json({ success: false, message: 'Failed to update account status.' });
+    }
+  }
+);
+
+// ---------------------------------------------------------------
+// POST /api/students/:id/account/reset-password — Admin reset password
+// ---------------------------------------------------------------
+router.post(
+  '/:id/account/reset-password',
+  [
+    param('id').isInt({ min: 1 }).withMessage('Invalid student ID.'),
+    body('new_password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters.'),
+  ],
+  async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) return sendValidationError(res, errors);
+
+    const studentId = req.params.id;
+    const newPassword = req.body.new_password;
+
+    try {
+      const passwordHash = await bcrypt.hash(newPassword, 12);
+      const [result] = await pool.execute(
+        'UPDATE student_accounts SET password_hash = ?, must_change_password = 1, updated_at = NOW() WHERE student_id = ?',
+        [passwordHash, studentId]
+      );
+
+      if (result.affectedRows === 0) {
+        return res.status(404).json({ success: false, message: 'Student account not found.' });
+      }
+
+      res.json({
+        success: true,
+        message: 'Student password reset successfully. Student will be prompted to update it on next login.',
+      });
+    } catch (err) {
+      console.error('POST /:id/account/reset-password error:', err);
+      res.status(500).json({ success: false, message: 'Failed to reset password.' });
     }
   }
 );

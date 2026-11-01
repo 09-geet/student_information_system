@@ -48,13 +48,17 @@ const state = {
 // 2. UTILITY HELPERS
 // ================================================================
 
-/** Centralized fetch wrapper — adds JSON headers, checks auth. */
+/** Centralized fetch wrapper — adds JSON headers, CSRF token, checks auth. */
 async function apiFetch(url, options = {}) {
-  const defaults = {
-    headers: { 'Content-Type': 'application/json' },
-    credentials: 'same-origin',
-  };
-  const res = await fetch(url, { ...defaults, ...options });
+  const headers = { 'Content-Type': 'application/json', ...(options.headers || {}) };
+
+  // Attach CSRF token for state-changing methods
+  const method = (options.method || 'GET').toUpperCase();
+  if (['POST', 'PUT', 'PATCH', 'DELETE'].includes(method) && window.getCsrfToken) {
+    headers['CSRF-Token'] = window.getCsrfToken();
+  }
+
+  const res = await fetch(url, { ...options, headers, credentials: 'same-origin' });
 
   if (res.status === 401) {
     if (window.location.pathname !== '/login.html') {
@@ -62,6 +66,18 @@ async function apiFetch(url, options = {}) {
     }
     return res;
   }
+
+  // If we get a CSRF rejection, refresh the token and retry once
+  if (res.status === 403) {
+    const clone = res.clone();
+    const body = await clone.json().catch(() => ({}));
+    if (body.message && body.message.toLowerCase().includes('csrf')) {
+      await window.fetchCsrfToken();
+      headers['CSRF-Token'] = window.getCsrfToken();
+      return fetch(url, { ...options, headers, credentials: 'same-origin' });
+    }
+  }
+
   return res;
 }
 
@@ -375,6 +391,7 @@ function renderStudentsTable(students) {
       <td>
         <div class="actions-cell">
           <button class="btn btn-xs btn-outline" onclick="editStudent(${s.id})" title="Edit">✏️ Edit</button>
+          <button class="btn btn-xs btn-outline" onclick="openStudentAccountModal(${s.id}, '${escapeHtml(s.name)}', '${escapeHtml(s.roll_number)}')" title="Portal Account">🔑 Account</button>
           <button class="btn btn-xs btn-danger"  onclick="confirmDelete(${s.id}, '${escapeHtml(s.name)}')" title="Delete">🗑 Delete</button>
         </div>
       </td>
@@ -1310,7 +1327,167 @@ async function loadAttendanceDateReport() {
 document.getElementById('att-report-btn').addEventListener('click', loadAttendanceDateReport);
 
 // ================================================================
-// 12. SIDEBAR TOGGLE (mobile)
+// 12. STUDENT ACCOUNT MANAGEMENT MODAL (ADMIN)
+// ================================================================
+let currentAccountStudentId = null;
+let currentAccountActive = false;
+
+function showSamAlert(msg, type = 'error') {
+  const el = document.getElementById('sam-alert');
+  if (!el) return;
+  el.textContent = (type === 'error' ? '⚠️ ' : '✅ ') + msg;
+  el.className = `alert alert-${type}`;
+  el.classList.remove('hidden');
+}
+
+function hideSamAlert() {
+  const el = document.getElementById('sam-alert');
+  if (el) el.classList.add('hidden');
+}
+
+async function openStudentAccountModal(id, name, roll) {
+  currentAccountStudentId = id;
+  hideSamAlert();
+  document.getElementById('sam-student-title').textContent = `Account: ${name} (${roll})`;
+  document.getElementById('student-account-modal').classList.remove('hidden');
+
+  document.getElementById('sam-status-badge').innerHTML = '<span class="badge badge-inactive">Loading…</span>';
+  document.getElementById('sam-email').textContent = '—';
+  document.getElementById('sam-last-login').textContent = '—';
+  document.getElementById('sam-toggle-box').classList.add('hidden');
+  document.getElementById('sam-reset-box').classList.add('hidden');
+  document.getElementById('sam-create-box').classList.add('hidden');
+
+  try {
+    const res = await apiFetch(`/api/students/${id}/account`);
+    const data = await res.json();
+    if (!data.success) {
+      showSamAlert(data.message || 'Failed to load account details.', 'error');
+      return;
+    }
+
+    if (!data.account) {
+      document.getElementById('sam-status-badge').innerHTML = '<span class="badge badge-inactive">No Account</span>';
+      document.getElementById('sam-create-box').classList.remove('hidden');
+      return;
+    }
+
+    const acc = data.account;
+    currentAccountActive = Boolean(acc.is_active);
+    document.getElementById('sam-status-badge').innerHTML = acc.is_active
+      ? '<span class="badge badge-active">Active</span>'
+      : '<span class="badge badge-inactive">Deactivated</span>';
+    document.getElementById('sam-email').textContent = acc.email || '—';
+    document.getElementById('sam-last-login').textContent = acc.last_login
+      ? new Date(acc.last_login).toLocaleString('en-IN')
+      : 'Never logged in';
+
+    const toggleBtn = document.getElementById('sam-toggle-btn');
+    if (acc.is_active) {
+      toggleBtn.className = 'btn btn-sm btn-danger';
+      toggleBtn.textContent = 'Deactivate Account';
+    } else {
+      toggleBtn.className = 'btn btn-sm btn-primary';
+      toggleBtn.textContent = 'Activate Account';
+    }
+
+    document.getElementById('sam-toggle-box').classList.remove('hidden');
+    document.getElementById('sam-reset-box').classList.remove('hidden');
+  } catch (err) {
+    showSamAlert('Failed to communicate with the server.', 'error');
+  }
+}
+
+function closeStudentAccountModal() {
+  document.getElementById('student-account-modal').classList.add('hidden');
+  currentAccountStudentId = null;
+}
+
+document.getElementById('sam-toggle-btn')?.addEventListener('click', async () => {
+  if (!currentAccountStudentId) return;
+  const newStatus = !currentAccountActive;
+  try {
+    const res = await apiFetch(`/api/students/${currentAccountStudentId}/account/toggle-status`, {
+      method: 'POST',
+      body: JSON.stringify({ is_active: newStatus }),
+    });
+    const data = await res.json();
+    if (data.success) {
+      showSamAlert(data.message, 'success');
+      currentAccountActive = newStatus;
+      document.getElementById('sam-status-badge').innerHTML = newStatus
+        ? '<span class="badge badge-active">Active</span>'
+        : '<span class="badge badge-inactive">Deactivated</span>';
+      const toggleBtn = document.getElementById('sam-toggle-btn');
+      toggleBtn.className = newStatus ? 'btn btn-sm btn-danger' : 'btn btn-sm btn-primary';
+      toggleBtn.textContent = newStatus ? 'Deactivate Account' : 'Activate Account';
+    } else {
+      showSamAlert(data.message || 'Failed to update account status.', 'error');
+    }
+  } catch (_) {
+    showSamAlert('Network error updating status.', 'error');
+  }
+});
+
+document.getElementById('sam-reset-form')?.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  if (!currentAccountStudentId) return;
+  const newPass = document.getElementById('sam-new-password').value.trim();
+  if (newPass.length < 6) {
+    showSamAlert('Password must be at least 6 characters.', 'error');
+    return;
+  }
+  const btn = document.getElementById('sam-reset-btn');
+  btn.disabled = true;
+  btn.textContent = 'Resetting…';
+  try {
+    const res = await apiFetch(`/api/students/${currentAccountStudentId}/account/reset-password`, {
+      method: 'POST',
+      body: JSON.stringify({ new_password: newPass }),
+    });
+    const data = await res.json();
+    if (data.success) {
+      showSamAlert(data.message, 'success');
+      document.getElementById('sam-new-password').value = '';
+    } else {
+      showSamAlert(data.message || 'Failed to reset password.', 'error');
+    }
+  } catch (_) {
+    showSamAlert('Network error resetting password.', 'error');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Reset Password';
+  }
+});
+
+document.getElementById('sam-create-btn')?.addEventListener('click', async () => {
+  if (!currentAccountStudentId) return;
+  const btn = document.getElementById('sam-create-btn');
+  btn.disabled = true;
+  btn.textContent = 'Creating…';
+  try {
+    const res = await apiFetch(`/api/students/${currentAccountStudentId}/account/create`, {
+      method: 'POST',
+      body: JSON.stringify({ initial_password: 'Student@123' }),
+    });
+    const data = await res.json();
+    if (data.success) {
+      showSamAlert(data.message, 'success');
+      const title = document.getElementById('sam-student-title').textContent.replace('Account: ', '');
+      openStudentAccountModal(currentAccountStudentId, title, '');
+    } else {
+      showSamAlert(data.message || 'Failed to create account.', 'error');
+    }
+  } catch (_) {
+    showSamAlert('Network error creating account.', 'error');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Create Portal Account (Default: Student@123)';
+  }
+});
+
+// ================================================================
+// 13. SIDEBAR TOGGLE (mobile)
 // ================================================================
 document.getElementById('hamburger-btn').addEventListener('click', () => {
   document.querySelector('.sidebar').classList.toggle('open');
@@ -1324,7 +1501,7 @@ document.querySelectorAll('.nav-link').forEach(link => {
 });
 
 // ================================================================
-// 13. INITIALISE
+// 14. INITIALISE
 // ================================================================
 (async () => {
   const isAuthed = await checkAuth();

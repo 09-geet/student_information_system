@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Login — Student Information System</title>
+  <title>Admin Login — Student Information System</title>
   <link rel="stylesheet" href="css/style.css" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
@@ -20,7 +20,12 @@
 
     <!-- Login Card -->
     <div class="card auth-card">
-      <h2 class="card-title">Administrator Login</h2>
+      <div class="auth-header-tabs">
+        <a href="/login.html" class="auth-tab active">Admin Login</a>
+        <a href="/student-login.html" class="auth-tab">Student Portal</a>
+      </div>
+
+      <h2 class="card-title" style="margin-top: 1rem;">Administrator Login</h2>
 
       <!-- Error / Success Banner -->
       <div id="auth-alert" class="alert hidden" role="alert"></div>
@@ -60,18 +65,23 @@
         </div>
 
         <button type="submit" class="btn btn-primary btn-full" id="login-btn">
-          <span class="btn-text">Sign In</span>
+          <span class="btn-text">Sign In as Admin</span>
           <span class="btn-spinner hidden">⏳ Signing in…</span>
         </button>
       </form>
 
-      <p class="auth-hint">
-        Default credentials: <strong>admin</strong> / <strong>Admin@123</strong><br/>
-        <small>Change your password after first login.</small>
-      </p>
+      <div class="auth-footer-links" style="margin-top: 1.5rem; text-align: center; border-top: 1px solid var(--gray-200); padding-top: 1rem;">
+        <p class="auth-hint" style="margin-top: 0;">
+          Default credentials: <strong>admin</strong> / <strong>Admin@123</strong>
+        </p>
+        <p style="font-size: 0.825rem; color: var(--gray-500); margin-top: 0.5rem;">
+          Are you a student? <a href="/student-login.html" style="font-weight: 600;">Student Portal Login &rarr;</a>
+        </p>
+      </div>
     </div>
   </div>
 
-  <script src="js/login.js"></script>
+  <script src="js/csrf.js"></script>
+<script src="js/login.js"></script>
 </body>
 </html>

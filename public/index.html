@@ -726,6 +726,72 @@
   </div>
 
   <!-- ===========================================================
+       STUDENT ACCOUNT MANAGEMENT MODAL
+  =========================================================== -->
+  <div id="student-account-modal" class="modal-overlay hidden" role="dialog" aria-modal="true">
+    <div class="modal modal-md">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+        <h3 id="sam-student-title">Student Portal Account</h3>
+        <button class="btn btn-xs btn-outline" onclick="closeStudentAccountModal()">✕ Close</button>
+      </div>
+
+      <div id="sam-alert" class="alert hidden" role="alert"></div>
+
+      <div id="sam-details" style="background: var(--gray-50); padding: 1rem; border-radius: 8px; margin-bottom: 1.25rem;">
+        <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+          <span style="color: var(--gray-500); font-size: 0.85rem;">Account Status:</span>
+          <span id="sam-status-badge">—</span>
+        </div>
+        <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+          <span style="color: var(--gray-500); font-size: 0.85rem;">Registered Email:</span>
+          <strong id="sam-email" style="font-size: 0.85rem;">—</strong>
+        </div>
+        <div style="display: flex; justify-content: space-between;">
+          <span style="color: var(--gray-500); font-size: 0.85rem;">Last Login:</span>
+          <span id="sam-last-login" style="font-size: 0.85rem; color: var(--gray-700);">Never</span>
+        </div>
+      </div>
+
+      <!-- Action 1: Toggle Status -->
+      <div id="sam-toggle-box" style="margin-bottom: 1.25rem; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--gray-200); padding-bottom: 1rem;">
+        <div>
+          <strong style="font-size: 0.9rem; display: block;">Portal Access</strong>
+          <small style="color: var(--gray-500);">Activate or deactivate student's ability to sign in</small>
+        </div>
+        <button class="btn btn-sm" id="sam-toggle-btn">Toggle Status</button>
+      </div>
+
+      <!-- Action 2: Reset Password Form -->
+      <div id="sam-reset-box">
+        <h4 style="font-size: 0.95rem; margin-bottom: 0.5rem;">Reset Student Password</h4>
+        <form id="sam-reset-form">
+          <div class="form-group" style="margin-bottom: 0.75rem;">
+            <input
+              id="sam-new-password"
+              type="text"
+              class="form-control"
+              placeholder="Enter new password (min 6 characters)"
+              value="Student@123"
+              required
+            />
+          </div>
+          <div style="display: flex; justify-content: flex-end; gap: 0.5rem;">
+            <button type="submit" class="btn btn-sm btn-primary" id="sam-reset-btn">Reset Password</button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Create account box if not exists -->
+      <div id="sam-create-box" class="hidden" style="text-align: center; padding: 1rem 0;">
+        <p style="color: var(--gray-600); font-size: 0.9rem; margin-bottom: 1rem;">
+          This student does not have a login portal account yet.
+        </p>
+        <button class="btn btn-primary" id="sam-create-btn">Create Portal Account (Default: Student@123)</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===========================================================
        DELETE CONFIRMATION MODAL
   =========================================================== -->
   <div id="delete-modal" class="modal-overlay hidden" role="dialog" aria-modal="true">
@@ -739,6 +805,7 @@
     </div>
   </div>
 
-  <script src="js/app.js"></script>
+  <script src="js/csrf.js"></script>
+<script src="js/app.js"></script>
 </body>
 </html>

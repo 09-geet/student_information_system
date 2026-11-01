@@ -104,9 +104,16 @@ document.getElementById('login-form').addEventListener('submit', async (e) => {
   setLoading(true);
 
   try {
+    // Ensure we have a fresh CSRF token before POSTing
+    if (window.fetchCsrfToken) await window.fetchCsrfToken();
+
     const response = await fetch('/api/auth/login', {
       method:  'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'CSRF-Token':   window.getCsrfToken ? window.getCsrfToken() : '',
+      },
+      credentials: 'same-origin',
       body:    JSON.stringify({ username: username.trim(), password }),
     });
 

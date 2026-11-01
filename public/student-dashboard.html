@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Student Portal — Student Information System</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+</head>
+<body>
+
+  <!-- ============================================================
+       SIDEBAR / NAV
+  ============================================================ -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <span class="brand-icon">🎓</span>
+      <span class="brand-text">Student Portal</span>
+    </div>
+
+    <!-- Student Profile Badge -->
+    <div class="student-sidebar-profile">
+      <div class="student-avatar" id="sidebar-avatar">👨‍🎓</div>
+      <div class="student-sidebar-info">
+        <span class="student-sidebar-name" id="sidebar-student-name">Loading…</span>
+        <span class="student-sidebar-roll" id="sidebar-student-roll">—</span>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <a href="#overview" class="nav-link active" data-section="overview">
+        📊 Overview
+      </a>
+      <a href="#profile" class="nav-link" data-section="profile">
+        👤 My Profile
+      </a>
+      <a href="#attendance" class="nav-link" data-section="attendance">
+        📅 Attendance
+      </a>
+      <a href="#fees" class="nav-link" data-section="fees">
+        💳 Fees & Payments
+      </a>
+      <a href="#notices" class="nav-link" data-section="notices">
+        📢 Notice Board
+      </a>
+      <a href="#results" class="nav-link" data-section="results">
+        📝 Exam Results
+      </a>
+      <a href="#security" class="nav-link" data-section="security">
+        🔐 Security & Password
+      </a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <span class="sidebar-user" id="sidebar-status-tag">Active Student</span>
+      <button class="btn btn-sm btn-outline" id="student-logout-btn">Logout</button>
+    </div>
+  </aside>
+
+  <!-- ============================================================
+       MAIN CONTENT
+  ============================================================ -->
+  <main class="main-content">
+
+    <!-- Top bar -->
+    <header class="topbar">
+      <button class="hamburger" id="hamburger-btn" aria-label="Toggle sidebar">☰</button>
+      <h1 class="topbar-title" id="student-page-title">Dashboard Overview</h1>
+      <div class="topbar-right">
+        <span class="badge badge-active" id="topbar-student-course">—</span>
+        <span class="topbar-user" id="topbar-student-name">Welcome</span>
+        <button class="btn btn-sm btn-outline" id="topbar-logout-btn" style="margin-left: 0.5rem;">Logout</button>
+      </div>
+    </header>
+
+    <!-- Global Alert Banner -->
+    <div id="global-alert" class="alert hidden" role="alert"></div>
+
+    <!-- Must Change Password Prompt (if flagged by admin) -->
+    <div id="must-change-pwd-banner" class="alert alert-warning hidden" style="margin: 1.5rem 1.5rem 0;" role="alert">
+      ⚠️ <strong>Account Security Notice:</strong> You are currently using a temporary password set by the administrator. Please <a href="#security" onclick="navigateStudent('security')" style="text-decoration: underline; font-weight: 700;">change your password now</a>.
+    </div>
+
+    <!-- ===========================================================
+         SECTION 1: OVERVIEW
+    =========================================================== -->
+    <section id="section-overview" class="section active">
+      <!-- Welcome Hero Banner -->
+      <div class="card student-hero-card">
+        <div class="student-hero-content">
+          <h2 class="student-hero-title">Welcome back, <span id="hero-student-name">—</span>!</h2>
+          <p class="student-hero-subtitle" id="hero-student-details">
+            Enrolled in <strong id="hero-course">—</strong> | Department of <strong id="hero-dept">—</strong>
+          </p>
+        </div>
+        <div class="student-hero-badge">
+          <span class="badge badge-active" id="hero-status">Active</span>
+        </div>
+      </div>
+
+      <!-- Quick Metrics Grid -->
+      <div class="stats-grid">
+        <div class="stat-card stat-blue">
+          <div class="stat-icon">📅</div>
+          <div class="stat-info">
+            <span class="stat-label">Attendance Rate</span>
+            <span class="stat-value" id="dash-att-pct">0%</span>
+          </div>
+        </div>
+
+        <div class="stat-card stat-indigo">
+          <div class="stat-icon">💰</div>
+          <div class="stat-info">
+            <span class="stat-label">Total Course Fee</span>
+            <span class="stat-value" id="dash-fee-total">₹0</span>
+          </div>
+        </div>
+
+        <div class="stat-card stat-green">
+          <div class="stat-icon">✅</div>
+          <div class="stat-info">
+            <span class="stat-label">Fees Paid</span>
+            <span class="stat-value" id="dash-fee-paid">₹0</span>
+          </div>
+        </div>
+
+        <div class="stat-card stat-rose">
+          <div class="stat-icon">⏳</div>
+          <div class="stat-info">
+            <span class="stat-label">Remaining Balance</span>
+            <span class="stat-value" id="dash-fee-balance">₹0</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 2-Column Split: Attendance Health & Recent Notices -->
+      <div class="dashboard-split-grid">
+        <!-- Attendance Health -->
+        <div class="card">
+          <div class="card-header-flex">
+            <h3 class="card-title" style="margin-bottom: 0;">Attendance Status</h3>
+            <button class="btn btn-xs btn-outline" onclick="navigateStudent('attendance')">View All &rarr;</button>
+          </div>
+          <div class="attendance-meter-box" style="margin: 1.25rem 0;">
+            <div class="meter-labels">
+              <span>Overall Progress</span>
+              <strong id="meter-pct-text">0%</strong>
+            </div>
+            <div class="meter-track">
+              <div class="meter-bar" id="meter-progress-bar" style="width: 0%;"></div>
+            </div>
+            <p id="attendance-threshold-note" class="meter-note">
+              Minimum 75% required for examination eligibility.
+            </p>
+          </div>
+          <div class="mini-stats-row">
+            <div class="mini-stat-item">
+              <span class="mini-stat-label">Total Classes</span>
+              <strong class="mini-stat-value" id="dash-att-total">0</strong>
+            </div>
+            <div class="mini-stat-item">
+              <span class="mini-stat-label">Attended</span>
+              <strong class="mini-stat-value text-success" id="dash-att-present">0</strong>
+            </div>
+            <div class="mini-stat-item">
+              <span class="mini-stat-label">Absent</span>
+              <strong class="mini-stat-value text-danger" id="dash-att-absent">0</strong>
+            </div>
+          </div>
+        </div>
+
+        <!-- Latest Notices -->
+        <div class="card">
+          <div class="card-header-flex">
+            <h3 class="card-title" style="margin-bottom: 0;">Latest Announcements</h3>
+            <button class="btn btn-xs btn-outline" onclick="navigateStudent('notices')">Notice Board &rarr;</button>
+          </div>
+          <div id="dash-notices-container" class="notices-snippet-list" style="margin-top: 1rem;">
+            <p class="text-muted" style="font-size: 0.9rem;">Loading announcements…</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===========================================================
+         SECTION 2: MY PROFILE
+    =========================================================== -->
+    <section id="section-profile" class="section">
+      <div class="section-header">
+        <h2 class="section-title">Student Profile</h2>
+      </div>
+
+      <div class="profile-grid">
+        <!-- Personal Information -->
+        <div class="card">
+          <h3 class="card-title">Personal Information</h3>
+          <div class="profile-field-list">
+            <div class="profile-field">
+              <span class="field-label">Full Name</span>
+              <strong class="field-value" id="p-name">—</strong>
+            </div>
+            <div class="profile-field">
+              <span class="field-label">Student Roll Number</span>
+              <code class="field-value" id="p-roll">—</code>
+            </div>
+            <div class="profile-field">
+              <span class="field-label">Email Address</span>
+              <span class="field-value" id="p-email">—</span>
+            </div>
+            <div class="profile-field">
+              <span class="field-label">Phone Number</span>
+              <span class="field-value" id="p-phone">—</span>
+            </div>
+            <div class="profile-field">
+              <span class="field-label">Admission Date</span>
+              <span class="field-value" id="p-admission">—</span>
+            </div>
+            <div class="profile-field">
+              <span class="field-label">Enrollment Status</span>
+              <span class="field-value" id="p-status">—</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Academic & Program Details -->
+        <div class="card">
+          <h3 class="card-title">Academic Program</h3>
+          <div class="profile-field-list">
+            <div class="profile-field">
+              <span class="field-label">Enrolled Course</span>
+              <strong class="field-value" id="p-course">—</strong>
+            </div>
+            <div class="profile-field">
+              <span class="field-label">Course Code</span>
+              <span class="field-value" id="p-course-code">—</span>
+            </div>
+            <div class="profile-field">
+              <span class="field-label">Course Duration</span>
+              <span class="field-value" id="p-duration">—</span>
+            </div>
+            <div class="profile-field">
+              <span class="field-label">Academic Department</span>
+              <span class="field-value" id="p-dept">—</span>
+            </div>
+            <div class="profile-field">
+              <span class="field-label">Department Code</span>
+              <span class="field-value" id="p-dept-code">—</span>
+            </div>
+            <div class="profile-field">
+              <span class="field-label">Last Portal Login</span>
+              <span class="field-value" id="p-last-login">—</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===========================================================
+         SECTION 3: MY ATTENDANCE
+    =========================================================== -->
+    <section id="section-attendance" class="section">
+      <div class="section-header">
+        <h2 class="section-title">My Attendance Records</h2>
+      </div>
+
+      <!-- Low Attendance Alert Banner -->
+      <div id="att-warning-banner" class="alert alert-error hidden" role="alert">
+        ⚠️ <strong>Attendance Warning:</strong> Your overall attendance is currently below 75%. As per academic regulations, you may be disbarred from semester examinations if attendance remains below 75%.
+      </div>
+
+      <!-- Attendance Metrics Grid -->
+      <div class="stats-grid">
+        <div class="stat-card stat-blue">
+          <div class="stat-icon">📚</div>
+          <div class="stat-info">
+            <span class="stat-label">Total Classes</span>
+            <span class="stat-value" id="att-stat-total">0</span>
+          </div>
+        </div>
+        <div class="stat-card stat-green">
+          <div class="stat-icon">✅</div>
+          <div class="stat-info">
+            <span class="stat-label">Present Days</span>
+            <span class="stat-value" id="att-stat-present">0</span>
+          </div>
+        </div>
+        <div class="stat-card stat-rose">
+          <div class="stat-icon">❌</div>
+          <div class="stat-info">
+            <span class="stat-label">Absent Days</span>
+            <span class="stat-value" id="att-stat-absent">0</span>
+          </div>
+        </div>
+        <div class="stat-card stat-purple">
+          <div class="stat-icon">📈</div>
+          <div class="stat-info">
+            <span class="stat-label">Attendance Percentage</span>
+            <span class="stat-value" id="att-stat-pct">0%</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Attendance Filter and History Table -->
+      <div class="card filter-card">
+        <div class="filter-row">
+          <div class="form-group search-group">
+            <input
+              id="att-search-input"
+              type="search"
+              class="form-control"
+              placeholder="🔍  Filter by date or batch…"
+            />
+          </div>
+          <div class="form-group">
+            <select id="att-filter-status" class="form-control">
+              <option value="">All Statuses</option>
+              <option value="Present">Present Only</option>
+              <option value="Absent">Absent Only</option>
+            </select>
+          </div>
+          <button class="btn btn-secondary" id="att-clear-filter-btn">Clear Filter</button>
+        </div>
+      </div>
+
+      <div class="card table-card">
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Date</th>
+                <th>Class / Batch</th>
+                <th>Subject / Course</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="att-history-tbody">
+              <tr>
+                <td colspan="5" class="table-loading">Loading attendance records…</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===========================================================
+         SECTION 4: MY FEES & PAYMENTS
+    =========================================================== -->
+    <section id="section-fees" class="section">
+      <div class="section-header">
+        <h2 class="section-title">My Fee Details & Payment History</h2>
+      </div>
+
+      <!-- Fee Summary Cards -->
+      <div class="stats-grid">
+        <div class="stat-card stat-indigo">
+          <div class="stat-icon">💰</div>
+          <div class="stat-info">
+            <span class="stat-label">Total Course Fee</span>
+            <span class="stat-value" id="fee-stat-total">₹0</span>
+          </div>
+        </div>
+        <div class="stat-card stat-teal">
+          <div class="stat-icon">💵</div>
+          <div class="stat-info">
+            <span class="stat-label">Paid Amount</span>
+            <span class="stat-value" id="fee-stat-paid">₹0</span>
+          </div>
+        </div>
+        <div class="stat-card stat-rose">
+          <div class="stat-icon">⏳</div>
+          <div class="stat-info">
+            <span class="stat-label">Remaining Balance</span>
+            <span class="stat-value" id="fee-stat-balance">₹0</span>
+          </div>
+        </div>
+        <div class="stat-card stat-amber">
+          <div class="stat-icon">📋</div>
+          <div class="stat-info">
+            <span class="stat-label">Fee Status</span>
+            <span class="stat-value" id="fee-stat-status" style="font-size: 1.4rem;">—</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Payments Table -->
+      <div class="card table-card">
+        <div style="padding: 1rem 1.25rem; border-bottom: 1px solid var(--gray-200); display: flex; justify-content: space-between; align-items: center;">
+          <h3 class="card-title" style="margin-bottom: 0;">Payment Receipts & Transactions</h3>
+          <span style="font-size: 0.85rem; color: var(--gray-500);" id="fee-receipts-count">0 payments recorded</span>
+        </div>
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Payment Date</th>
+                <th>Amount (₹)</th>
+                <th>Payment Method</th>
+                <th>Receipt Remarks</th>
+              </tr>
+            </thead>
+            <tbody id="fee-payments-tbody">
+              <tr>
+                <td colspan="5" class="table-loading">Loading payment history…</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div style="padding: 1rem 1.25rem; background: var(--gray-50); font-size: 0.85rem; color: var(--gray-600); border-top: 1px solid var(--gray-200);">
+          💡 <em>Note: Official stamped payment receipts can also be collected from the Campus Accounts Office during working hours.</em>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===========================================================
+         SECTION 5: NOTICE BOARD
+    =========================================================== -->
+    <section id="section-notices" class="section">
+      <div class="section-header">
+        <h2 class="section-title">Notice Board & Announcements</h2>
+      </div>
+
+      <div id="notices-container" class="notices-feed">
+        <div class="card" style="padding: 2rem; text-align: center;">
+          <p class="text-muted">Loading notices…</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===========================================================
+         SECTION 6: EXAM RESULTS & MARKSHEET (EMPTY STATE)
+    =========================================================== -->
+    <section id="section-results" class="section">
+      <div class="section-header">
+        <h2 class="section-title">Examination Results & Marksheet</h2>
+      </div>
+
+      <div class="card empty-state-card">
+        <div class="empty-state-icon">📋</div>
+        <h3 class="empty-state-title">No Exam Results Published Yet</h3>
+        <p class="empty-state-text">
+          Examination results, semester grade points (SGPA/CGPA), and subject marksheets for your current academic session are undergoing evaluation and have not been published by the examination branch.
+        </p>
+        <div class="empty-state-meta">
+          <span class="badge badge-inactive">Current Term: 2024–2025</span>
+          <span class="badge badge-inactive">Status: Results Pending</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===========================================================
+         SECTION 7: SECURITY & PASSWORD
+    =========================================================== -->
+    <section id="section-security" class="section">
+      <div class="section-header">
+        <h2 class="section-title">Security & Change Password</h2>
+      </div>
+
+      <div class="card form-card" style="max-width: 600px;">
+        <div id="pwd-form-alert" class="alert hidden" role="alert"></div>
+
+        <form id="change-pwd-form" novalidate>
+          <div class="form-group">
+            <label for="current-pwd">Current Password <span class="required">*</span></label>
+            <input
+              id="current-pwd"
+              type="password"
+              class="form-control"
+              placeholder="Enter your current password"
+              required
+            />
+            <span class="field-error" id="e-current-pwd"></span>
+          </div>
+
+          <div class="form-group">
+            <label for="new-pwd">New Password <span class="required">*</span></label>
+            <input
+              id="new-pwd"
+              type="password"
+              class="form-control"
+              placeholder="Enter new strong password"
+              required
+            />
+            <span class="field-error" id="e-new-pwd"></span>
+            <small style="display: block; margin-top: 0.35rem; font-size: 0.775rem; color: var(--gray-500);">
+              Must be at least 8 characters long with uppercase, lowercase, and numbers.
+            </small>
+          </div>
+
+          <div class="form-group">
+            <label for="confirm-pwd">Confirm New Password <span class="required">*</span></label>
+            <input
+              id="confirm-pwd"
+              type="password"
+              class="form-control"
+              placeholder="Re-enter new password"
+              required
+            />
+            <span class="field-error" id="e-confirm-pwd"></span>
+          </div>
+
+          <div class="form-actions" style="margin-top: 1.5rem;">
+            <button type="submit" class="btn btn-primary" id="change-pwd-btn">
+              <span class="btn-text">Update Password</span>
+              <span class="btn-spinner hidden">⏳ Updating…</span>
+            </button>
+            <button type="reset" class="btn btn-secondary">Clear</button>
+          </div>
+        </form>
+      </div>
+    </section>
+
+  </main>
+
+  <script src="js/csrf.js"></script>
+<script src="js/student-app.js"></script>
+</body>
+</html>
